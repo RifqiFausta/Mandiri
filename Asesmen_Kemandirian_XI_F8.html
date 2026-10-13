@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Asesmen Kemandirian Belajar Murid — XI F8 SMAN 6 Yogyakarta</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          },
+          keyframes: {
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(24px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            pulseSubtle: {
+              '0%, 100%': { transform: 'scale(1)' },
+              '50%': { transform: 'scale(1.02)' },
+            }
+          },
+          animation: {
+            fadeInUp: 'fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            pulseSubtle: 'pulseSubtle 2s infinite ease-in-out',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar & Typeform polish */
+    body {
+      touch-action: pan-y;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    .question-screen {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .question-screen.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .key-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+    }
+
+    /* Option button styling */
+    .option-card {
+      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .option-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.12);
+    }
+    .option-card.selected {
+      border-color: #2563eb !important;
+      background-color: #eff6ff !important;
+      box-shadow: 0 0 0 2px #2563eb, 0 8px 24px -4px rgba(37, 99, 235, 0.2) !important;
+    }
+    .option-card.selected .key-badge {
+      background-color: #2563eb !important;
+      color: #ffffff !important;
+    }
+
+    /* Pulse animation on quick auto-advance */
+    .option-card.selected-anim {
+      animation: pulseSubtle 0.25s ease-in-out;
+    }
+
+    /* Print media query */
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; }
+      #screen-summary, #screen-success, #screen-13, #screen-14 { display: block !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-brand-500 selection:text-white">
+
+  <!-- TOP HEADER / PROGRESS BAR -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-all no-print">
+    <!-- Slim Gradient Progress Track -->
+    <div class="w-full bg-slate-100 h-1.5 overflow-hidden">
+      <div id="topProgressBar" class="h-full bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500 transition-all duration-500 ease-out" style="width: 0%;"></div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+      <!-- Title & Step Indicator -->
+      <div class="flex items-center space-x-3">
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-700 font-extrabold text-sm">
+          📊
+        </span>
+        <div>
+          <h1 class="text-xs sm:text-sm font-bold text-slate-800 leading-tight">Asesmen Kemandirian Belajar</h1>
+          <p id="stepSubtext" class="text-[11px] text-slate-500 font-medium">Model TPS &middot; Kelas XI F8 SMAN 6 Yogyakarta</p>
+        </div>
+      </div>
+
+      <!-- Action & Settings -->
+      <div class="flex items-center space-x-2">
+        <span id="progressPercentBadge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+          0% Selesai
+        </span>
+        
+        
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER (FULL-HEIGHT TYPEFORM FLOW) -->
+  <main class="flex-1 max-w-2xl w-full mx-auto px-4 pt-24 pb-28 flex flex-col justify-center items-center relative">
+
+    <!-- SCREEN 0: WELCOME / INTRO -->
+    <section id="screen-0" class="question-screen active w-full flex-col text-left py-6">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold w-max mb-5">
+        <span>📍</span> Model Think-Pair-Share &middot; Statistika Bivariat
+      </div>
+      
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
+        Asesmen Kemandirian Belajar Murid
+      </h2>
+
+      <p class="text-base sm:text-lg text-slate-600 mb-6 leading-relaxed">
+        Selamat datang! Angket ini dirancang untuk merefleksikan kemandirian dan kebiasaan belajar Anda saat mengerjakan aktivitas 
+        <strong class="text-slate-800">E-LKM Statistika Bivariat (Metode Kuadrat Terkecil)</strong> di kelas XI F8.
+      </p>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-white rounded-2xl border border-slate-200/90 shadow-sm mb-8">
+        <div class="text-center p-2">
+          <p class="text-xs text-slate-500 font-medium">Jumlah Soal</p>
+          <p class="text-lg font-bold text-blue-600">10 Butir</p>
+        </div>
+        <div class="text-center p-2 border-l border-slate-100">
+          <p class="text-xs text-slate-500 font-medium">Estimasi Waktu</p>
+          <p class="text-lg font-bold text-slate-700">± 3 Menit</p>
+        </div>
+        <div class="text-center p-2 border-l border-slate-100">
+          <p class="text-xs text-slate-500 font-medium">Skala Pilihan</p>
+          <p class="text-lg font-bold text-slate-700">4 Skala</p>
+        </div>
+        <div class="text-center p-2 border-l border-slate-100">
+          <p class="text-xs text-slate-500 font-medium">Sifat Jawaban</p>
+          <p class="text-lg font-bold text-emerald-600">Reflektif</p>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center gap-4">
+        <button onclick="goToStep(1)" class="w-full sm:w-auto px-7 py-3.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold rounded-xl shadow-lg shadow-blue-500/25 transition flex items-center justify-center gap-2">
+          <span>Mulai Pengisian</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        </button>
+        <span class="text-xs text-slate-400 hidden sm:inline-block font-medium">
+          atau tekan <kbd class="px-2 py-1 bg-slate-200 text-slate-700 rounded text-[11px] font-mono shadow-sm">Enter ↵</kbd>
+        </span>
+      </div>
+    </section>
+
+    <!-- SCREEN 1: IDENTITAS MURID -->
+    <section id="screen-1" class="question-screen w-full flex-col text-left py-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-blue-600 mb-2">Identitas Diri</div>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-2">
+        Sebelum mulai, mohon lengkapi identitas Anda:
+      </h2>
+      <p class="text-sm text-slate-500 mb-6">Pilih nama Anda dari daftar murid kelas XI F8 atau ketik langsung.</p>
+
+      <div class="space-y-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-6">
+        <!-- Nama Lengkap Murid -->
+        <div>
+          <label for="inputNama" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Nama Lengkap Murid <span class="text-rose-500">*</span>
+          </label>
+          <div class="relative">
+            <input 
+              type="text" 
+              id="inputNama" 
+              list="rosterList" 
+              placeholder="Ketik atau pilih nama Anda..." 
+              autocomplete="off"
+              oninput="handleStudentSelection(this.value)"
+              class="w-full px-4 py-3 text-base rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-slate-50 focus:bg-white"
+            >
+            <datalist id="rosterList">
+              <!-- Auto filled by JS -->
+            </datalist>
+          </div>
+          <p id="nameHelp" class="text-[11px] text-slate-400 mt-1">Ketik nama untuk memfilter daftar absen kelas XI F8.</p>
+        </div>
+
+        <!-- Baris Kelas, Presensi, Tanggal -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label for="inputKelas" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Kelas
+            </label>
+            <input 
+              type="text" 
+              id="inputKelas" 
+              value="XI F8" 
+              readonly 
+              class="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-100 text-slate-600 font-semibold cursor-not-allowed"
+            >
+          </div>
+
+          <div>
+            <label for="inputPresensi" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              No. Presensi <span class="text-rose-500">*</span>
+            </label>
+            <input 
+              type="number" 
+              id="inputPresensi" 
+              placeholder="Contoh: 14" 
+              min="1" 
+              max="40" 
+              class="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-slate-50 focus:bg-white"
+            >
+          </div>
+
+          <div>
+            <label for="inputTanggal" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Tanggal Pengisian
+            </label>
+            <input 
+              type="date" 
+              id="inputTanggal" 
+              class="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-slate-50 focus:bg-white"
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button onclick="goToStep(0)" class="px-5 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-semibold text-sm transition">
+          ← Kembali
+        </button>
+        <button onclick="validateAndGoToStep(2)" class="px-7 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition flex items-center gap-2">
+          <span>Lanjut ke Petunjuk</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: PETUNJUK PENGISIAN -->
+    <section id="screen-2" class="question-screen w-full flex-col text-left py-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-blue-600 mb-2">Petunjuk Pengisian</div>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-4 leading-snug">
+        Panduan Mengisi Angket Penilaian Diri
+      </h2>
+
+      <div class="space-y-3 mb-6">
+        <div class="flex items-start gap-3 p-4 bg-white rounded-xl border border-slate-200">
+          <div class="w-7 h-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm shrink-0">1</div>
+          <p class="text-sm text-slate-700 leading-relaxed">
+            Bacalah setiap butir pernyataan dengan cermat sesuai pengalaman nyata Anda selama menyelesaikan tahapan <strong>E-LKM Statistika Bivariat</strong>.
+          </p>
+        </div>
+
+        <div class="flex items-start gap-3 p-4 bg-white rounded-xl border border-slate-200">
+          <div class="w-7 h-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm shrink-0">2</div>
+          <div class="text-sm text-slate-700 space-y-1">
+            <p class="font-medium">Tersedia 4 pilihan respons pada setiap butir pernyataan:</p>
+            <div class="grid grid-cols-2 gap-2 pt-1 text-xs">
+              <div class="p-2 rounded-lg bg-blue-50 border border-blue-200 font-semibold text-blue-800">
+                SS = Sangat Setuju
+              </div>
+              <div class="p-2 rounded-lg bg-indigo-50 border border-indigo-200 font-semibold text-indigo-800">
+                S = Setuju
+              </div>
+              <div class="p-2 rounded-lg bg-amber-50 border border-amber-200 font-semibold text-amber-800">
+                TS = Tidak Setuju
+              </div>
+              <div class="p-2 rounded-lg bg-rose-50 border border-rose-200 font-semibold text-rose-800">
+                STS = Sangat Tidak Setuju
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 p-4 bg-emerald-50/70 rounded-xl border border-emerald-200">
+          <div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm shrink-0">3</div>
+          <p class="text-sm text-emerald-900 leading-relaxed">
+            Jawaban ini bersifat <strong>reflektif</strong> dan <strong>tidak memengaruhi nilai akademis matematika</strong> Anda. Jawablah secara jujur sesuai keadaan yang sebenarnya.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button onclick="goToStep(1)" class="px-5 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-semibold text-sm transition">
+          ← Identitas
+        </button>
+        <button onclick="goToStep(3)" class="px-7 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition flex items-center gap-2">
+          <span>Mulai Butir 1</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- QUESTION SCREENS 1 TO 10 (INJECTED DYNAMICALLY OR STATIC TEMPLATE) -->
+    <!-- Containers for questions 3 to 12 -->
+    <div id="dynamicQuestionsContainer" class="w-full"></div>
+
+    <!-- SCREEN 13: KONFIRMASI PENGIRIMAN (TANPA EDIT & TANPA SKOR) -->
+    <section id="screen-13" class="question-screen w-full flex-col text-left py-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-blue-600 mb-1">Tahap Akhir</div>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-2">
+        Konfirmasi Pengiriman Jawaban
+      </h2>
+      <p class="text-sm text-slate-500 mb-5">Seluruh butir pernyataan telah Anda selesaikan. Klik tombol di bawah untuk menyimpan jawaban Anda ke Spreadsheet Pengajar.</p>
+
+      <!-- Student Identity Card -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm mb-6 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Nama Lengkap Murid</p>
+            <p id="sumNama" class="text-base font-bold text-slate-800">-</p>
+          </div>
+          <div>
+            <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Kelas / No. Presensi</p>
+            <p id="sumKelasNo" class="text-base font-bold text-slate-800">XI F8 / -</p>
+          </div>
+          <div>
+            <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Tanggal Pengisian</p>
+            <p id="sumTanggal" class="text-base font-bold text-slate-800">-</p>
+          </div>
+        </div>
+
+        <!-- Status Card (Checklist Pengisian) -->
+        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200/80 flex items-center gap-3.5">
+          <div class="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-base shrink-0">✓</div>
+          <div>
+            <p class="text-xs sm:text-sm font-bold text-emerald-900">10 dari 10 Butir Pernyataan Telah Terjawab</p>
+            <p class="text-[11px] sm:text-xs text-emerald-700 mt-0.5">Jawaban Anda akan langsung terekam ke Google Spreadsheet pengajar setelah dikirim.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Action Area (Hanya Tombol Kirim Tanpa Tombol Edit) -->
+      <div class="space-y-3">
+        <div id="submitStatusAlert" class="hidden p-3.5 rounded-xl text-sm font-semibold"></div>
+
+        <button id="btnSubmitGoogleSheet" onclick="submitToGoogleSheet()" class="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/25 transition flex items-center justify-center gap-2 text-base">
+          <span id="submitSpinner" class="hidden animate-spin">🌀</span>
+          <span id="submitBtnText">Kirim Jawaban ke Spreadsheet 🚀</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- SCREEN 14: SUCCESS / TERIMA KASIH (TANPA SKOR) -->
+    <section id="screen-14" class="question-screen w-full flex-col text-center py-8">
+      <div class="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-4xl mx-auto mb-5 shadow-inner">
+        ✓
+      </div>
+
+      <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Jawaban Berhasil Terkirim!</h2>
+      <p class="text-base text-slate-600 max-w-md mx-auto mb-6">
+        Terima kasih, <strong id="successStudentName" class="text-slate-800">-</strong>. 
+        Seluruh data angket penilaian diri Anda telah tersimpan dengan aman di Spreadsheet Pengajar.
+      </p>
+
+      <!-- Badge Ringkasan Murid (Tanpa Menampilkan Skor) -->
+      <div class="max-w-md mx-auto w-full bg-white p-5 rounded-2xl border border-slate-200 shadow-sm text-left mb-6">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-100 text-xs">
+          <span class="text-slate-500">Kelas / No. Presensi:</span>
+          <span id="successKelasNo" class="font-bold text-slate-800 text-xs">-</span>
+        </div>
+        <div class="flex justify-between items-center pb-3 border-b border-slate-100 text-xs">
+          <span class="text-slate-500">Waktu Pengiriman:</span>
+          <span id="successTimestamp" class="font-bold text-slate-800 text-xs">-</span>
+        </div>
+        <div class="flex justify-between items-center pt-3 text-xs">
+          <span class="text-slate-500">Status Penyimpanan:</span>
+          <span class="inline-flex items-center gap-1 font-bold text-emerald-600">
+            <span>●</span> Tersimpan di Google Spreadsheet
+          </span>
+        </div>
+        <p class="text-[11px] text-slate-400 pt-3 border-t border-slate-100 mt-3 leading-relaxed">
+          Terus pertahankan semangat belajar, eksplorasi mandiri, dan refleksi jujur dalam setiap kegiatan pembelajaran matematika!
+        </p>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-3 no-print">
+        <button onclick="location.reload()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs transition">
+          Selesai / Isi untuk Murid Lain
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM FLOATING NAV (TYPEFORM ARROWS & KEYBOARD HELPER) -->
+  <footer class="fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-t border-slate-200/80 px-4 py-2.5 no-print">
+    <div class="max-w-4xl mx-auto flex items-center justify-between text-xs">
+      
+      <!-- Current Step Label -->
+      <div class="text-slate-500 font-medium">
+        <span id="bottomStepLabel">Bagian 1: Angket Kemandirian</span>
+      </div>
+
+      <!-- Arrow Navigation Pill -->
+      <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+        <button id="navPrevBtn" onclick="handlePrevStep()" class="p-1.5 rounded-lg text-slate-600 hover:bg-white hover:text-blue-600 transition disabled:opacity-30 disabled:cursor-not-allowed" title="Sebelumnya (Shift+Tab atau Panah Atas)">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+        </button>
+        <div class="w-[1px] h-4 bg-slate-300"></div>
+        <button id="navNextBtn" onclick="handleNextStep()" class="p-1.5 rounded-lg text-slate-600 hover:bg-white hover:text-blue-600 transition disabled:opacity-30 disabled:cursor-not-allowed" title="Selanjutnya (Enter atau Panah Bawah)">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+      </div>
+
+      <!-- Keyboard instruction chip -->
+      <div class="hidden md:flex items-center space-x-2 text-slate-400 text-[11px]">
+        <span>Navigasi:</span>
+        <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono text-[10px]">A-D / 1-4</kbd>
+        <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono text-[10px]">Enter ↵</kbd>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    /**
+     * KONFIGURASI GOOGLE APPS SCRIPT WEB APP URL (TERKUNCI SECARA PERMANEN)
+     */
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNzzbTBuZEHe7tvO_nBclaZn_GqLx20WdhTygxgQ1nChhc7VnszJstBJBQZ0F3TWKJ7A/exec";
+
+    // 33 Murid Resmi Kelas XI F8 SMAN 6 Yogyakarta (Berdasarkan Profiling Asesmen)
+    const ROSTER_XI_F8 = [
+      { no: 1, name: "Abdullah Sulthoni Hakim" },
+      { no: 2, name: "Aqila Kirana Prameswari" },
+      { no: 4, name: "Ashilah Azalia" },
+      { no: 5, name: "Asyifa Nur Nafi'Ah" },
+      { no: 6, name: "Atina Nur Khasanah" },
+      { no: 7, name: "Aura Chantika Syifaunnisa" },
+      { no: 8, name: "Baim Suharta Sanjaya" },
+      { no: 9, name: "Charisa Evelyn Ramadhanti" },
+      { no: 10, name: "Dhiya Athaya Kanahaya Yudhitya" },
+      { no: 11, name: "Felindias Icna Realin" },
+      { no: 12, name: "Ghazir Rizky Ramadhan" },
+      { no: 13, name: "Githa Aisha Daaniara" },
+      { no: 14, name: "Griselda Aurelia M" },
+      { no: 15, name: "Hanamae Keisha Faluffy" },
+      { no: 17, name: "Innaya Kafka Nafisa" },
+      { no: 18, name: "Jovan Ariandika" },
+      { no: 19, name: "Keivano Raditya Dzaky" },
+      { no: 20, name: "Kinanthi Sekar Dewani Ariyanto" },
+      { no: 21, name: "Latifah Jehanaira Nisa" },
+      { no: 22, name: "Mochammad Rasikh Nur Fakhri" },
+      { no: 23, name: "Muhammad Arka Reswara Nasution" },
+      { no: 24, name: "Muhammad Rizky Nur Syahputra" },
+      { no: 25, name: "Muhammad Yusuf Muzaki" },
+      { no: 26, name: "Naura Rania Yasmin" },
+      { no: 27, name: "Qaila Ivana Zaafarani" },
+      { no: 28, name: "Qiara Ramadhani Yunanto" },
+      { no: 29, name: "Rahma Aisyah" },
+      { no: 30, name: "Rahmi Karissa" },
+      { no: 31, name: "Razqia Ainunnindya Rahma" },
+      { no: 32, name: "Saintly Aura Murtyaroh Putri" },
+      { no: 33, name: "Tazkia Hanifa" },
+      { no: 34, name: "Vanessa Almirasasi" }
+    ];
+
+    // 10 Butir Pernyataan Angket Kemandirian Belajar
+    // Type: '+' = Positif (SS=4, S=3, TS=2, STS=1)
+    // Type: '-' = Negatif (SS=1, S=2, TS=3, STS=4)
+    const STATEMENTS = [
+      {
+        id: 1,
+        type: '+',
+        tag: 'Strategi Mencatat',
+        text: 'Saya terbiasa membuat catatan ringkas atau rangkuman sendiri untuk membantu memahami konsep dan rumus garis regresi.'
+      },
+      {
+        id: 2,
+        type: '+',
+        tag: 'Latihan Mandiri',
+        text: 'Saya rutin berlatih mengerjakan soal-soal latihan secara mandiri untuk memperdalam pemahaman materi matematika.'
+      },
+      {
+        id: 3,
+        type: '-',
+        tag: 'Ketergantungan Materi',
+        text: 'Saya malas membuat catatan saat pembelajaran berlangsung dan hanya mengandalkan materi dari penjelasan guru.'
+      },
+      {
+        id: 4,
+        type: '-',
+        tag: 'Sikap Terhadap E-LKM',
+        text: 'Saya menganggap latihan soal di E-LKM tidak terlalu membantu saya dalam memahami konsep metode kuadrat terkecil.'
+      },
+      {
+        id: 5,
+        type: '-',
+        tag: 'Strategi Pemecahan Masalah',
+        text: 'Saya belum memiliki strategi atau cara belajar khusus saat menyelesaikan masalah matematika.'
+      },
+      {
+        id: 6,
+        type: '-',
+        tag: 'Integritas & Usaha',
+        text: 'Saya cenderung langsung menyalin catatan atau jawaban teman tanpa berusaha mencobanya sendiri terlebih dahulu.'
+      },
+      {
+        id: 7,
+        type: '+',
+        tag: 'Inisiasi Mandiri (E-LKM)',
+        text: 'Saya menginisiasi sendiri penginputan rumus deviasi di spreadsheet E-LKM tanpa menunggu jawaban dari teman atau guru.'
+      },
+      {
+        id: 8,
+        type: '+',
+        tag: 'Pemantauan Diri (Verifikasi)',
+        text: 'Saya memanfaatkan fitur tombol verifikasi (Cek Langkah 1, 2, 3) secara berkala untuk memantau kebenaran hasil kerja saya.'
+      },
+      {
+        id: 9,
+        type: '+',
+        tag: 'Kegigihan (Scaffolding)',
+        text: 'Ketika terjadi kesalahan hitung, saya membaca petunjuk bantuan (scaffolding) dan berusaha memperbaikinya secara mandiri.'
+      },
+      {
+        id: 10,
+        type: '+',
+        tag: 'Refleksi Diri Kritis',
+        text: 'Saya mengisi pertanyaan refleksi di akhir E-LKM dengan sungguh-sungguh berdasarkan pemahaman yang saya peroleh.'
+      }
+    ];
+
+    const OPTIONS = [
+      { key: 'A', code: 'SS', label: 'Sangat Setuju', desc: 'Sangat sesuai dengan diri Anda', color: 'border-blue-200 hover:border-blue-400' },
+      { key: 'B', code: 'S',  label: 'Setuju',        desc: 'Cenderung sesuai dengan diri Anda', color: 'border-indigo-200 hover:border-indigo-400' },
+      { key: 'C', code: 'TS', label: 'Tidak Setuju',   desc: 'Cenderung tidak sesuai', color: 'border-amber-200 hover:border-amber-400' },
+      { key: 'D', code: 'STS', label: 'Sangat Tidak Setuju', desc: 'Sangat bertolak belakang', color: 'border-rose-200 hover:border-rose-400' }
+    ];
+
+    // State Variables
+    let currentStep = 0; // 0=Intro, 1=Identitas, 2=Petunjuk, 3..12=Questions 1..10, 13=Summary, 14=Success
+    const totalSteps = 14; 
+    let studentResponses = {}; // { 1: 'SS', 2: 'S', ... }
+
+    // Init Page on Load
+    document.addEventListener('DOMContentLoaded', () => {
+      initRosterDatalist();
+      initDefaultDate();
+      renderQuestionScreens();
+      localStorage.removeItem("custom_google_script_url");
+      loadDraftFromLocalStorage();
+      updateNavigationUI();
+      setupKeyboardShortcuts();
+    });
+
+    // Populate Datalist
+    function initRosterDatalist() {
+      const datalist = document.getElementById('rosterList');
+      if (!datalist) return;
+      datalist.innerHTML = '';
+      ROSTER_XI_F8.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.name;
+        opt.label = `No. ${item.no} — ${item.name}`;
+        datalist.appendChild(opt);
+      });
+    }
+
+    // Set Today's Date
+    function initDefaultDate() {
+      const dateInput = document.getElementById('inputTanggal');
+      if (dateInput && !dateInput.value) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+      }
+    }
+
+    // Handle student select from roster
+    function handleStudentSelection(val) {
+      const matched = ROSTER_XI_F8.find(r => r.name.toLowerCase() === val.trim().toLowerCase());
+      const presensiInput = document.getElementById('inputPresensi');
+      const nameHelp = document.getElementById('nameHelp');
+      if (matched && presensiInput) {
+        presensiInput.value = matched.no;
+        if (nameHelp) {
+          nameHelp.innerHTML = `<span class="text-emerald-600 font-semibold">✓ Murid teridentifikasi: No. Presensi ${matched.no}</span>`;
+        }
+      } else {
+        if (nameHelp) {
+          nameHelp.innerHTML = 'Ketik nama untuk memfilter daftar absen kelas XI F8.';
+        }
+      }
+    }
+
+    // Render Question Screens 1 to 10
+    function renderQuestionScreens() {
+      const container = document.getElementById('dynamicQuestionsContainer');
+      container.innerHTML = '';
+
+      STATEMENTS.forEach((stmt, idx) => {
+        const stepNum = idx + 3; // Step 3 corresponds to Statement 1
+        const section = document.createElement('section');
+        section.id = `screen-${stepNum}`;
+        section.className = 'question-screen w-full flex-col text-left py-4';
+
+        section.innerHTML = `
+          <!-- Header Badge -->
+          <div class="flex items-center justify-between mb-3">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
+              Butir ${stmt.id} dari 10 &middot; ${stmt.tag}
+            </span>
+            <span class="text-xs text-slate-400 font-medium">
+              Pertanyaan ${stmt.id} / 10
+            </span>
+          </div>
+
+          <!-- Statement Text -->
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-snug mb-6">
+            "${stmt.text}"
+          </h2>
+
+          <!-- 4 Options Cards -->
+          <div class="grid grid-cols-1 gap-2.5 mb-6" id="opt-group-${stmt.id}">
+            ${OPTIONS.map(opt => `
+              <button 
+                type="button" 
+                onclick="selectOption(${stmt.id}, '${opt.code}', ${stepNum})"
+                id="btn-opt-${stmt.id}-${opt.code}"
+                class="option-card w-full p-4 rounded-xl border ${opt.color} bg-white flex items-center justify-between text-left group cursor-pointer"
+              >
+                <div class="flex items-center gap-3.5">
+                  <span class="key-badge bg-slate-100 text-slate-600 group-hover:bg-blue-600 group-hover:text-white">
+                    ${opt.key}
+                  </span>
+                  <div>
+                    <p class="font-bold text-slate-800 text-sm sm:text-base">${opt.label} (${opt.code})</p>
+                    <p class="text-xs text-slate-400 font-normal">${opt.desc}</p>
+                  </div>
+                </div>
+                <div class="check-icon opacity-0 transition group-[.selected]:opacity-100 text-blue-600 font-bold">
+                  ✓
+                </div>
+              </button>
+            `).join('')}
+          </div>
+
+          <!-- Question Footer / Navigation (Tanpa Tombol Kembali / Edit) -->
+          <div class="flex items-center justify-between pt-2">
+            <span class="text-[11px] text-slate-400">Pilih salah satu respons (A, B, C, D)</span>
+            <button onclick="validateAndGoToNextQuestion(${stmt.id}, ${stepNum})" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow transition">
+              ${stmt.id === 10 ? 'Selesai & Lanjut ke Kirim →' : 'Lanjut →'}
+            </button>
+          </div>
+        `;
+
+        container.appendChild(section);
+      });
+    }
+
+    // Step Navigation
+    function goToStep(step) {
+      if (step < 0) step = 0;
+      if (step > totalSteps) step = totalSteps;
+
+      // Deactivate current
+      document.querySelectorAll('.question-screen').forEach(el => {
+        el.classList.remove('active');
+      });
+
+      currentStep = step;
+
+      // Activate target
+      const targetScreen = document.getElementById(`screen-${currentStep}`) 
+        || (currentStep === 13 ? (document.getElementById('screen-13') || document.getElementById('screen-summary')) : null)
+        || (currentStep === 14 ? (document.getElementById('screen-14') || document.getElementById('screen-success')) : null);
+      if (targetScreen) {
+        targetScreen.classList.add('active');
+      } else {
+        console.error('Target screen not found for step:', currentStep);
+      }
+
+      // Update Navigation, Progress, and Labels
+      updateNavigationUI();
+
+      // Scroll to top of viewport smoothly
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Focus first input if on identity screen
+      if (currentStep === 1) {
+        setTimeout(() => {
+          const input = document.getElementById('inputNama');
+          if (input) input.focus();
+        }, 150);
+      }
+
+      // If reaching summary screen
+      if (currentStep === 13) {
+        updateSummaryDashboard();
+      }
+    }
+
+    function handleNextStep() {
+      if (currentStep === 0) {
+        goToStep(1);
+      } else if (currentStep === 1) {
+        validateAndGoToStep(2);
+      } else if (currentStep === 2) {
+        goToStep(3);
+      } else if (currentStep >= 3 && currentStep <= 12) {
+        const qId = currentStep - 2;
+        validateAndGoToNextQuestion(qId, currentStep);
+      } else if (currentStep === 13) {
+        submitToGoogleSheet();
+      }
+    }
+
+    function handlePrevStep() {
+      // Hanya izinkan navigasi mundur antara layar Petunjuk (2), Identitas (1), dan Intro (0)
+      if (currentStep > 0 && currentStep <= 2) {
+        goToStep(currentStep - 1);
+      }
+    }
+
+    // Validate Identity Step
+    function validateAndGoToStep(nextStep) {
+      const nama = document.getElementById('inputNama').value.trim();
+      const presensi = document.getElementById('inputPresensi').value.trim();
+
+      if (!nama) {
+        alert('Mohon masukkan Nama Lengkap Anda terlebih dahulu!');
+        document.getElementById('inputNama').focus();
+        return;
+      }
+      if (!presensi) {
+        alert('Mohon masukkan Nomor Presensi Anda!');
+        document.getElementById('inputPresensi').focus();
+        return;
+      }
+
+      saveDraftToLocalStorage();
+      goToStep(nextStep);
+    }
+
+    // Option Selection
+    function selectOption(stmtId, optCode, stepNum) {
+      studentResponses[stmtId] = optCode;
+
+      // Update UI classes
+      OPTIONS.forEach(opt => {
+        const btn = document.getElementById(`btn-opt-${stmtId}-${opt.code}`);
+        if (btn) {
+          if (opt.code === optCode) {
+            btn.classList.add('selected', 'selected-anim');
+          } else {
+            btn.classList.remove('selected', 'selected-anim');
+          }
+        }
+      });
+
+      saveDraftToLocalStorage();
+
+      // Auto advance to next question smoothly after 320ms
+      setTimeout(() => {
+        if (currentStep === stepNum) {
+          if (stmtId < 10) {
+            goToStep(stepNum + 1);
+          } else {
+            goToStep(13); // Summary
+          }
+        }
+      }, 320);
+    }
+
+    function validateAndGoToNextQuestion(stmtId, stepNum) {
+      if (!studentResponses[stmtId]) {
+        alert(`Harap pilih salah satu respons untuk Butir ${stmtId} sebelum melanjutkan!`);
+        return;
+      }
+      if (stmtId < 10) {
+        goToStep(stepNum + 1);
+      } else {
+        goToStep(13);
+      }
+    }
+
+    // Scoring & Interpretation
+    function calculateResults() {
+      let totalSkor = 0;
+      const itemScores = {};
+
+      STATEMENTS.forEach(stmt => {
+        const resp = studentResponses[stmt.id];
+        let score = 0;
+        if (resp) {
+          if (stmt.type === '+') {
+            // Positif: SS=4, S=3, TS=2, STS=1
+            if (resp === 'SS') score = 4;
+            else if (resp === 'S') score = 3;
+            else if (resp === 'TS') score = 2;
+            else if (resp === 'STS') score = 1;
+          } else {
+            // Negatif: SS=1, S=2, TS=3, STS=4
+            if (resp === 'SS') score = 1;
+            else if (resp === 'S') score = 2;
+            else if (resp === 'TS') score = 3;
+            else if (resp === 'STS') score = 4;
+          }
+        }
+        itemScores[stmt.id] = score;
+        totalSkor += score;
+      });
+
+      // Nilai Kemandirian Belajar (NKB): (Total Skor / 40) * 100
+      const nkb = Math.round((totalSkor / 40) * 100);
+
+      // Kategori Kemandirian & Rubrik
+      let kategori = '';
+      let deskripsi = '';
+      let badgeColor = '';
+
+      if (nkb >= 81) {
+        kategori = 'Sangat Tinggi';
+        badgeColor = 'text-emerald-700 bg-emerald-100 border-emerald-300';
+        deskripsi = 'Murid sangat mandiri, konsisten menyusun strategi belajar pribadi, aktif memantau hasil kerja melalui scaffolding di E-LKM, gigih merevisi kesalahan secara mandiri, dan tidak menyalin jawaban teman.';
+      } else if (nkb >= 61) {
+        kategori = 'Tinggi / Sedang';
+        badgeColor = 'text-blue-700 bg-blue-100 border-blue-300';
+        deskripsi = 'Murid memiliki kemandirian yang cukup baik. Mampu bekerja mandiri di E-LKM, terbiasa membuat catatan dan latihan soal, namun sesekali masih membutuhkan arahan/konfirmasi tambahan dari guru.';
+      } else if (nkb >= 41) {
+        kategori = 'Rendah';
+        badgeColor = 'text-amber-700 bg-amber-100 border-amber-300';
+        deskripsi = 'Murid kurang mandiri, jarang membuat catatan/latihan mandiri, cenderung pasif saat menghadapi eror perhitungan, dan terkadang masih bergantung pada salinan jawaban teman.';
+      } else {
+        kategori = 'Sangat Rendah';
+        badgeColor = 'text-rose-700 bg-rose-100 border-rose-300';
+        deskripsi = 'Murid sangat tidak mandiri, tidak memiliki strategi belajar khusus, mengandalkan salinan jawaban teman secara penuh, dan menolak mencoba menyelesaikan soal sendiri.';
+      }
+
+      return { totalSkor, nkb, kategori, deskripsi, badgeColor, itemScores };
+    }
+
+    // Update Summary Dashboard (Screen 13) - Tanpa Menampilkan Skor ke Murid
+    function updateSummaryDashboard() {
+      const nama = document.getElementById('inputNama').value.trim() || '-';
+      const kelas = document.getElementById('inputKelas').value.trim() || 'XI F8';
+      const noPresensi = document.getElementById('inputPresensi').value.trim() || '-';
+      const tanggal = document.getElementById('inputTanggal').value || '-';
+
+      const sumNama = document.getElementById('sumNama');
+      const sumKelasNo = document.getElementById('sumKelasNo');
+      const sumTanggal = document.getElementById('sumTanggal');
+
+      if (sumNama) sumNama.textContent = nama;
+      if (sumKelasNo) sumKelasNo.textContent = `${kelas} / No. ${noPresensi}`;
+      if (sumTanggal) sumTanggal.textContent = tanggal;
+    }
+
+    // UI Progress Bar & Navigation State
+    function updateNavigationUI() {
+      const bar = document.getElementById('topProgressBar');
+      const badge = document.getElementById('progressPercentBadge');
+      const stepSubtext = document.getElementById('stepSubtext');
+      const bottomLabel = document.getElementById('bottomStepLabel');
+      const prevBtn = document.getElementById('navPrevBtn');
+      const nextBtn = document.getElementById('navNextBtn');
+
+      let progress = 0;
+      if (currentStep === 0) progress = 0;
+      else if (currentStep === 1) progress = 10;
+      else if (currentStep === 2) progress = 15;
+      else if (currentStep >= 3 && currentStep <= 12) {
+        // 10 questions: 20% to 90%
+        progress = 20 + ((currentStep - 2) * 7);
+      } else if (currentStep === 13) progress = 95;
+      else if (currentStep === 14) progress = 100;
+
+      if (bar) bar.style.width = `${progress}%`;
+      if (badge) badge.textContent = `${Math.min(100, Math.round(progress))}% Selesai`;
+
+      if (currentStep === 0) {
+        stepSubtext.textContent = 'Selamat Datang &middot; Kelas XI F8 SMAN 6 Yogyakarta';
+        bottomLabel.textContent = 'Mulai Asesmen Kemandirian';
+        if (prevBtn) prevBtn.disabled = true;
+        if (nextBtn) nextBtn.disabled = false;
+      } else if (currentStep === 1) {
+        stepSubtext.textContent = 'Tahap 1: Pengisian Identitas Murid';
+        bottomLabel.textContent = 'Identitas Murid';
+        if (prevBtn) prevBtn.disabled = false;
+        if (nextBtn) nextBtn.disabled = false;
+      } else if (currentStep === 2) {
+        stepSubtext.textContent = 'Tahap 2: Petunjuk Pengisian Angket';
+        bottomLabel.textContent = 'Panduan & Skala';
+        if (prevBtn) prevBtn.disabled = false;
+        if (nextBtn) nextBtn.disabled = false;
+      } else if (currentStep >= 3 && currentStep <= 12) {
+        const qNum = currentStep - 2;
+        stepSubtext.textContent = `Pertanyaan ${qNum} dari 10: ${STATEMENTS[qNum - 1].tag}`;
+        bottomLabel.textContent = `Butir ${qNum} / 10`;
+        if (prevBtn) prevBtn.disabled = true; // Tidak bisa kembali ke pertanyaan sebelumnya
+        if (nextBtn) nextBtn.disabled = false;
+      } else if (currentStep === 13) {
+        stepSubtext.textContent = 'Tahap Akhir: Konfirmasi Pengiriman Jawaban';
+        bottomLabel.textContent = 'Konfirmasi Pengiriman';
+        if (prevBtn) prevBtn.disabled = true; // Tidak ada edit pada tahap rangkuman
+        if (nextBtn) nextBtn.disabled = false;
+      } else if (currentStep === 14) {
+        stepSubtext.textContent = 'Selesai: Data Berhasil Tersimpan!';
+        bottomLabel.textContent = 'Pengisian Selesai';
+        if (prevBtn) prevBtn.disabled = true;
+        if (nextBtn) nextBtn.disabled = true;
+      }
+    }
+
+    // Submit to Google Spreadsheet via Apps Script
+    async function submitToGoogleSheet() {
+      const scriptUrl = GOOGLE_SCRIPT_URL;
+      const nama = document.getElementById('inputNama').value.trim();
+      const kelas = document.getElementById('inputKelas').value.trim() || 'XI F8';
+      const noPresensi = document.getElementById('inputPresensi').value.trim();
+      const tanggal = document.getElementById('inputTanggal').value;
+
+      if (!nama || !noPresensi) {
+        alert('Data identitas belum lengkap! Silakan kembali ke Tahap Identitas.');
+        goToStep(1);
+        return;
+      }
+
+      // Pastikan semua 10 butir sudah dijawab
+      for (let i = 1; i <= 10; i++) {
+        if (!studentResponses[i]) {
+          alert(`Butir nomor ${i} belum dijawab! Harap lengkapi terlebih dahulu.`);
+          goToStep(i + 2);
+          return;
+        }
+      }
+
+      const results = calculateResults();
+      const btn = document.getElementById('btnSubmitGoogleSheet');
+      const spinner = document.getElementById('submitSpinner');
+      const btnText = document.getElementById('submitBtnText');
+      const statusAlert = document.getElementById('submitStatusAlert');
+
+      // Set Loading UI
+      btn.disabled = true;
+      spinner.classList.remove('hidden');
+      btnText.textContent = 'Sedang Menyimpan ke Spreadsheet...';
+      statusAlert.classList.add('hidden');
+
+      // Siapkan Payload data
+      const payload = {
+        namaMurid: nama,
+        kelas: kelas,
+        noPresensi: noPresensi,
+        tanggal: tanggal,
+        // Jawaban teks
+        b1: studentResponses[1] || '',
+        b2: studentResponses[2] || '',
+        b3: studentResponses[3] || '',
+        b4: studentResponses[4] || '',
+        b5: studentResponses[5] || '',
+        b6: studentResponses[6] || '',
+        b7: studentResponses[7] || '',
+        b8: studentResponses[8] || '',
+        b9: studentResponses[9] || '',
+        b10: studentResponses[10] || '',
+        // Skor numerik
+        s1: results.itemScores[1] || 0,
+        s2: results.itemScores[2] || 0,
+        s3: results.itemScores[3] || 0,
+        s4: results.itemScores[4] || 0,
+        s5: results.itemScores[5] || 0,
+        s6: results.itemScores[6] || 0,
+        s7: results.itemScores[7] || 0,
+        s8: results.itemScores[8] || 0,
+        s9: results.itemScores[9] || 0,
+        s10: results.itemScores[10] || 0,
+        // Agregat
+        totalSkor: results.totalSkor,
+        nkb: results.nkb,
+        kategori: results.kategori,
+        submittedAt: new Date().toISOString()
+      };
+
+      // Siapkan FormData untuk transmisi reliable
+      const formData = new FormData();
+      Object.keys(payload).forEach(key => {
+        formData.append(key, payload[key]);
+      });
+
+      try {
+        // Kirim via fetch dengan fallback no-cors standar Google Apps Script
+        await fetch(scriptUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          body: formData
+        });
+
+        // Backup lokal untuk proteksi
+        saveSubmissionBackup(payload);
+
+        // Update Layar Sukses (Tanpa Menampilkan Skor)
+        document.getElementById('successStudentName').textContent = nama;
+        const successKelasNo = document.getElementById('successKelasNo');
+        if (successKelasNo) successKelasNo.textContent = `${kelas} / No. ${noPresensi}`;
+        const successTimestamp = document.getElementById('successTimestamp');
+        if (successTimestamp) successTimestamp.textContent = new Date().toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' });
+
+        // Clear local draft form
+        localStorage.removeItem('draft_angket_kemandirian');
+
+        // Beralih ke layar sukses
+        goToStep(14);
+
+      } catch (err) {
+        console.error('Error saat submit:', err);
+        statusAlert.className = 'p-3.5 rounded-xl text-sm font-semibold bg-rose-50 text-rose-700 border border-rose-200 block';
+        statusAlert.innerHTML = `
+          <p class="font-bold mb-1">⚠️ Terjadi Kendala Koneksi:</p>
+          <p class="text-xs">Gagal mengirim ke Google Spreadsheet. Periksa koneksi internet Anda atau pastikan URL Apps Script sudah benar di menu ⚙️ Pengaturan.</p>
+        `;
+        btn.disabled = false;
+        spinner.classList.add('hidden');
+        btnText.textContent = 'Coba Kirim Ulang 🚀';
+      }
+    }
+
+    // Local Storage Helpers
+    function saveDraftToLocalStorage() {
+      const draft = {
+        nama: document.getElementById('inputNama')?.value || '',
+        presensi: document.getElementById('inputPresensi')?.value || '',
+        tanggal: document.getElementById('inputTanggal')?.value || '',
+        responses: studentResponses
+      };
+      localStorage.setItem('draft_angket_kemandirian', JSON.stringify(draft));
+    }
+
+    function loadDraftFromLocalStorage() {
+      const raw = localStorage.getItem('draft_angket_kemandirian');
+      if (!raw) return;
+      try {
+        const draft = JSON.parse(raw);
+        if (draft.nama && document.getElementById('inputNama')) document.getElementById('inputNama').value = draft.nama;
+        if (draft.presensi && document.getElementById('inputPresensi')) document.getElementById('inputPresensi').value = draft.presensi;
+        if (draft.tanggal && document.getElementById('inputTanggal')) document.getElementById('inputTanggal').value = draft.tanggal;
+        if (draft.responses) {
+          studentResponses = draft.responses;
+          // Sync option UI
+          Object.keys(studentResponses).forEach(stmtId => {
+            const code = studentResponses[stmtId];
+            const btn = document.getElementById(`btn-opt-${stmtId}-${code}`);
+            if (btn) btn.classList.add('selected');
+          });
+        }
+      } catch (e) {
+        console.warn('Gagal memuat draft lokal:', e);
+      }
+    }
+
+    function saveSubmissionBackup(payload) {
+      try {
+        let history = JSON.parse(localStorage.getItem('backup_submissions_kemandirian') || '[]');
+        history.push(payload);
+        localStorage.setItem('backup_submissions_kemandirian', JSON.stringify(history));
+      } catch (e) {}
+    }
+
+    // Keyboard Shortcuts (Typeform style)
+    function setupKeyboardShortcuts() {
+      window.addEventListener('keydown', (e) => {
+        // Jangan tangkap jika sedang mengetik di input / modal
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+          if (e.key === 'Enter') {
+            if (currentStep === 1) validateAndGoToStep(2);
+          }
+          return;
+        }
+
+        // Enter key
+        if (e.key === 'Enter') {
+          handleNextStep();
+          return;
+        }
+
+        // Arrow Up / Down for step nav
+        if (e.key === 'ArrowDown') {
+          handleNextStep();
+          return;
+        }
+        if (e.key === 'ArrowUp') {
+          handlePrevStep();
+          return;
+        }
+
+        // Keys 1,2,3,4 or A,B,C,D when on question step
+        if (currentStep >= 3 && currentStep <= 12) {
+          const qId = currentStep - 2;
+          const k = e.key.toUpperCase();
+          if (k === '1' || k === 'A') selectOption(qId, 'SS', currentStep);
+          else if (k === '2' || k === 'B') selectOption(qId, 'S', currentStep);
+          else if (k === '3' || k === 'C') selectOption(qId, 'TS', currentStep);
+          else if (k === '4' || k === 'D') selectOption(qId, 'STS', currentStep);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
